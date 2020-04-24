@@ -35,26 +35,26 @@ use crate::string::Solution;
 impl Solution {
     //noinspection RsUnresolvedReference
     pub fn reverse_words(s: String) -> String {
-        let t: Vec<&str> = s.split(' ').collect();
-        t.into_iter().rev().filter(|x| x.len() > 0).collect::<Vec<_>>().join(" ")
+        s.split(' ').rev().filter(|x| x.len() > 0).collect::<Vec<_>>().join(" ")
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::ops::Deref;
 
     #[test]
     fn test() {
-        let cases = vec![
+        let cases = [
             ("", ""),
             ("I", "I"),
             ("the sky is blue", "blue is sky the"),
             ("  hello world!  ", "world! hello"),
             ("a good   example", "example good a"),
         ];
-        for (input, output) in cases {
-            assert_eq!(Solution::reverse_words(input.into()), output);
+        for (input, output) in cases.iter() {
+            assert_eq!(Solution::reverse_words(input.deref().into()), output.deref());
         }
     }
 }
