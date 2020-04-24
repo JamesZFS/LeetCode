@@ -17,43 +17,36 @@
 */
 
 use crate::array::Solution;
-use std::collections::HashMap;
 
 impl Solution {
     pub fn three_sum(mut nums: Vec<i32>) -> Vec<Vec<i32>> {
         let n = nums.len();
         if n < 3 { return Vec::new(); }
         nums.sort_unstable();
-        // println!("{:?}", nums);
         let mut res = Vec::new();
-        let mut a_prev = NULL;
         for i in 0..n - 2 {
             let a = nums[i];
-            if a == a_prev { continue; }
-            let mut b_prev = NULL;
-            for j in i + 1..n - 1 {
-                let b = nums[j];
-                if b == b_prev { continue; }
-                let mut c_prev = NULL;
-                for k in j + 1..n {
-                    let c = nums[k];
-                    if c == c_prev { continue; }
-                    let sum = a + b + c;
-                    if sum == 0 {
-                        let new = vec![a, b, c];
-                        res.push(new);
-                    } else if sum > 0 { break; }
-                    c_prev = c;
+            if i >= 1 && a == nums[i - 1] { continue; } // a > a_prev
+            let (mut l, mut r) = (i + 1, n - 1);
+            while l < r {
+                let (b, c) = (nums[l], nums[r]);
+                let sum = a + b + c;
+                if sum == 0 {  // Goal
+                    res.push(vec![a, b, c]);
+                    l += 1;
+                    r -= 1;
+                    while nums[l] == nums[l - 1] && l < r { l += 1; }
+                    while nums[r] == nums[r + 1] && l < r { r -= 1; }
+                } else if sum < 0 {
+                    l += 1;
+                } else {
+                    r -= 1;
                 }
-                b_prev = b;
             }
-            a_prev = a;
         }
         res
     }
 }
-
-const NULL: i32 = -2147483648 + 13;
 
 #[cfg(test)]
 mod tests {
@@ -62,10 +55,10 @@ mod tests {
     #[test]
     fn test() {
         let cases = vec![
+            (vec![2, 2, 3, 3, 4, -4, -2, -2, -2, 0, 1, 2, 4, 6, 6], vec![[-4, -2, 6], [-4, 0, 4], [-4, 1, 3], [-4, 2, 2], [-2, -2, 4], [-2, 0, 2]]),
             (vec![], vec![]),
             (vec![1, 2, -3], vec![[-3, 1, 2]]),
             (vec![-1, 0, 1, 2, -1, -4], vec![[-1, -1, 2], [-1, 0, 1]]),
-            (vec![2, 2, 3, 3, 4, -4, -2, -2, -2, 0, 1, 2, 4, 6, 6], vec![[-4, -2, 6], [-4, 0, 4], [-4, 1, 3], [-4, 2, 2], [-2, -2, 4], [-2, 0, 2]])
         ];
         for (input, expected) in cases {
             assert_eq!(Solution::three_sum(input), expected)
