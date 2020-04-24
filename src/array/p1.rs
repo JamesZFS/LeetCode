@@ -19,18 +19,35 @@ use crate::array::Solution;
 
 impl Solution {
     pub fn three_sum(nums: Vec<i32>) -> Vec<Vec<i32>> {
-        let mut res = std::collections::HashSet::<(i32, i32, i32)>::new();
-        for (i, &a) in nums.iter().enumerate() {
-            for (j, &b) in nums.iter().skip(i + 1).enumerate() {
-                for &c in nums.iter().skip(i + j + 2) {
-                    let three = in_order(a, b, c);
-                    if a + b + c == 0 && !res.contains(&three) {
-                        res.insert(three);
+        use std::collections::{HashSet, HashMap};
+        let nums = {  // num -> # occurrences
+            let mut occur = HashMap::<i32, i32>::new();
+            nums.iter().for_each(|&x| *occur.entry(x).or_insert(0) += 1);
+            occur
+        };
+        let mut res = Vec::new();
+        for (&a, &a_cnt) in nums.iter() {
+            for (&b, &b_cnt) in nums.iter() {
+                let c = -a - b;
+                if a == b {
+                    if a_cnt < 2 { continue; }
+                    if a == c {
+                        if a_cnt < 3 { continue; }
+                        res.push(vec![a, b, c]);
+                    } else {
+                        if nums.contains_key(&c) { res.push(vec![a, b, c]); }
+                    }
+                } else { // a != b
+                    if b == c {
+                        if b_cnt < 2 { continue; }
+                        res.push(vec![a, b, c]);
+                    } else {
+                        if nums.contains_key(&c) { res.push(vec![a, b, c]); }
                     }
                 }
             }
         }
-        res.into_iter().map(|(a, b, c)| vec![a, b, c]).collect()
+        res
     }
 }
 
@@ -66,8 +83,8 @@ mod tests {
     #[test]
     fn test() {
         let cases = vec![
-            (vec![], vec![]),
             (vec![-1, 0, 1, 2, -1, -4], vec![[-1, 0, 1], [-1, -1, 2]]),
+            (vec![], vec![]),
         ];
         for (input, expected) in cases {
             assert_eq!(Solution::three_sum(input), expected)
